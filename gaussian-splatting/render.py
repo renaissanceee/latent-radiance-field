@@ -42,30 +42,31 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
 
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
         rendering_latent = torch.clamp(render(view, gaussians, pipeline, background)["render"], min=0, max=1)
-        torchvision.utils.save_image(rendering_latent[0:3, :, :], os.path.join(render_latent_path, '{0:05d}'.format(idx) + ".png"))
+        torchvision.utils.save_image(rendering_latent[0:3, :, :], os.path.join(render_latent_path, view.image_name + ".png"))
 
         gt = view.original_image[0:3, :, :]
-        torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
+        torchvision.utils.save_image(gt, os.path.join(gts_path, view.image_name + ".png"))
 
         latent, latent_reconstruction = decode_img(rendering_latent, scene.auto_encoder, scene.latent_scales)
+        # (1,4,51,77), (3,408,616)
         latent = latent.detach().cpu().numpy()
 
-        np.save(os.path.join(render_latent_path, '{0:05d}'.format(idx) + ".npy"), latent)
+        np.save(os.path.join(render_latent_path, view.image_name + ".npy"), latent)
 
 
 
         if full_render:
             latent_reconstruction = torch.clamp(latent_reconstruction, 0.0, 1.0)
-            torchvision.utils.save_image(latent_reconstruction, os.path.join(latent_reconstruction_path, '{0:05d}'.format(idx) + ".png"))
+            torchvision.utils.save_image(latent_reconstruction, os.path.join(latent_reconstruction_path, view.image_name + ".png"))
 
             gts_reconstruction = torch.clamp(decode_img(view.original_latent_image, scene.auto_encoder, scene.latent_scales)[-1], 0.0,
                                                 1.0)
             torchvision.utils.save_image(gts_reconstruction,
-                                         os.path.join(gts_reconstruction_path, '{0:05d}'.format(idx) + ".png"))
+                                         os.path.join(gts_reconstruction_path, view.image_name + ".png"))
 
             gt_latent = view.original_latent_image[0:3, :, :]
             torchvision.utils.save_image(gt_latent,
-                                         os.path.join(gts_latent_path, '{0:05d}'.format(idx) + ".png"))
+                                         os.path.join(gts_latent_path, view.image_name + ".png"))
 
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train : bool, skip_test : bool, full_render:bool):
     with torch.no_grad():

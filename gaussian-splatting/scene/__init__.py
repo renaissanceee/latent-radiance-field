@@ -18,6 +18,9 @@ from scene.gaussian_model import GaussianModel
 from arguments import ModelParams
 from utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
 import torch
+import sys
+sys.path.append('/lustre1/project/stg_00081/jli/3DGS/latent-radiance-field/env_cu117/src/latent-diffusion')
+sys.path.append('/lustre1/project/stg_00081/jli/3DGS/latent-radiance-field/env_cu117/src/taming-transformers')
 from ldm.models.autoencoder import AutoencoderKL
 from ldm.models.autoencoder import VQModel
 from omegaconf import OmegaConf
